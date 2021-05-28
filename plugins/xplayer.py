@@ -70,6 +70,12 @@ async def _init() -> None:
     if gm_chats := await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_MODE_CHAT"}):
         VC_GROUP_MODE_CHATS = set(gm_chats["chat_ids"])
 
+async def admemes(id):
+    k = await userge.get_chat_members(id, filter="administrators")
+    m = []
+    for i in k:
+       m.append(i.user.id)
+    return m
 
 class XPlayer(GroupCall):
     def __init__(self, chat_id: int):
@@ -629,12 +635,27 @@ if userge.has_bot:
         "header": "Join voice chat",
         "description": "Join voice chat in current group.",
     },
+    filter_me=False,
+    check_client=True,
     allow_private=False,
     allow_bots=False,
+    check_downpath=True,
 )
 @add_groupcall
 async def join_voice_chat(m: Message, gc: XPlayer):
     """Join the voice chat."""
+    if (
+        m.from_user
+        and not (
+            m.from_user.id in Config.OWNER_ID
+            or (
+                (m.from_user.id in await admemes())
+                and ("joinvc" in Config.ALLOWED_COMMANDS)
+            )
+        )
+        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+    ):
+        return
     try:
         if gc.is_active:
             await m.edit("Already in Voice Chat !", del_in=5)
@@ -653,12 +674,27 @@ async def join_voice_chat(m: Message, gc: XPlayer):
         "usage": "{tr}skipvc [number of songs to skip]",
         "examples": "{tr}skipvc or {tr}skipvc 5",
     },
+    filter_me=False,
+    check_client=True,
     allow_private=False,
     allow_bots=False,
+    check_downpath=True,
 )
 @add_groupcall
 async def skip_song_voice_chat(m: Message, gc: XPlayer):
     """Skip Current playing song."""
+    if (
+        m.from_user
+        and not (
+            m.from_user.id in Config.OWNER_ID
+            or (
+                (m.from_user.id in await admemes())
+                and ("skipvc" in Config.ALLOWED_COMMANDS)
+            )
+        )
+        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+    ):
+        return
     if len(gc.playlist) == 0:
         await m.edit("No Songs to Skip", del_in=5)
         return
@@ -812,8 +848,11 @@ async def play_voice_chat(m: Message, gc: XPlayer):
         "flags": {"-all": "stop all active voice chats"},
         "examples": "{tr}stopvc",
     },
+    filter_me=False,
+    check_client=True,
     allow_private=False,
     allow_bots=False,
+    check_downpath=True,
 )
 @add_groupcall
 async def stop_voice_chat(m: Message, gc: XPlayer):
@@ -843,12 +882,27 @@ async def stop_voice_chat(m: Message, gc: XPlayer):
         "usage": "{tr}pausevc just use it.",
         "examples": "{tr}pausevc",
     },
+    filter_me=False,
+    check_client=True,
     allow_private=False,
     allow_bots=False,
+    check_downpath=True,
 )
 @add_groupcall
 async def pause_voice_chat(m: Message, gc: XPlayer):
     """Pause songs."""
+    if (
+        m.from_user
+        and not (
+            m.from_user.id in Config.OWNER_ID
+            or (
+                (m.from_user.id in await admemes())
+                and ("stopvc" in Config.ALLOWED_COMMANDS)
+            )
+        )
+        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+    ):
+        return
     await m.edit("⏸  __Pausing Media__ ...", del_in=5)
     gc.pause_playout()
 
@@ -861,8 +915,11 @@ async def pause_voice_chat(m: Message, gc: XPlayer):
         "usage": "{tr}pausevc just use it.",
         "examples": "{tr}pausevc",
     },
+    filter_me=False,
+    check_client=True,
     allow_private=False,
     allow_bots=False,
+    check_downpath=True,
 )
 @add_groupcall
 async def resume_voice_chat(m: Message, gc: XPlayer):
@@ -879,12 +936,27 @@ async def resume_voice_chat(m: Message, gc: XPlayer):
         "usage": "{tr}mutevc just use it.",
         "examples": "{tr}mutevc",
     },
+    filter_me=False,
+    check_client=True,
     allow_private=False,
     allow_bots=False,
+    check_downpath=True,
 )
 @add_groupcall
 async def mute_voice_chat(m: Message, gc: XPlayer):
     """Shhhh..."""
+    if (
+        m.from_user
+        and not (
+            m.from_user.id in Config.OWNER_ID
+            or (
+                (m.from_user.id in await admemes())
+                and ("stopvc" in Config.ALLOWED_COMMANDS)
+            )
+        )
+        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+    ):
+        return
     await m.edit("🔇  __Muting Self__ ...", del_in=5)
     gc.set_is_mute(True)
 
@@ -897,12 +969,27 @@ async def mute_voice_chat(m: Message, gc: XPlayer):
         "usage": "{tr}unmutevc just use it.",
         "examples": "{tr}unmutevc",
     },
+    filter_me=False,
+    check_client=True,
     allow_private=False,
     allow_bots=False,
+    check_downpath=True,
 )
 @add_groupcall
 async def unmute_voice_chat(m: Message, gc: XPlayer):
     """Unmute voice chat."""
+    if (
+        m.from_user
+        and not (
+            m.from_user.id in Config.OWNER_ID
+            or (
+                (m.from_user.id in await admemes())
+                and ("stopvc" in Config.ALLOWED_COMMANDS)
+            )
+        )
+        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+    ):
+        return
     await m.edit("🔈  __UnMuting Self__ ...", del_in=5)
     gc.set_is_mute(False)
 
@@ -915,12 +1002,27 @@ async def unmute_voice_chat(m: Message, gc: XPlayer):
         "usage": "Use {tr}volume and setup volume interactively.",
         "examples": "{tr}volume",
     },
+    filter_me=False,
+    check_client=True,
     allow_private=False,
     allow_bots=False,
+    check_downpath=True,
 )
 @add_groupcall
 async def change_vol(m: Message, gc: XPlayer):
     """A step for nature."""
+    if (
+        m.from_user
+        and not (
+            m.from_user.id in Config.OWNER_ID
+            or (
+                (m.from_user.id in await admemes())
+                and ("stopvc" in Config.ALLOWED_COMMANDS)
+            )
+        )
+        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+    ):
+        return
     if m.input_str and (vol := m.input_str.strip()).isdigit():
         gc.set_my_volume(int(vol))
         await m.edit(f"🔈  Volume changed to  **{vol}%**")
@@ -937,8 +1039,11 @@ async def change_vol(m: Message, gc: XPlayer):
         "usage": "Use {tr}managevc and manage !",
         "examples": "{tr}managevc",
     },
+    filter_me=False,
+    check_client=True,
     allow_private=False,
     allow_bots=False,
+    check_downpath=True,
 )
 @add_groupcall
 async def manage_voice_chat(m: Message, gc: XPlayer):
@@ -969,12 +1074,27 @@ async def manage_voice_chat(m: Message, gc: XPlayer):
         "usage": "Use {tr}radio [link]",
         "examples": "{tr}radio (yet to add example here)",
     },
+    filter_me=False,
+    check_client=True,
     allow_private=False,
     allow_bots=False,
+    check_downpath=True,
 )
 @add_groupcall
 async def start_radio(m: Message, gc: XPlayer):
     """Play radio stations."""
+    if (
+        m.from_user
+        and not (
+            m.from_user.id in Config.OWNER_ID
+            or (
+                (m.from_user.id in await admemes())
+                and ("stopvc" in Config.ALLOWED_COMMANDS)
+            )
+        )
+        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+    ):
+        return
     text = None
     reply = m.reply_to_message
     if m.input_str:
@@ -1007,12 +1127,27 @@ async def start_radio(m: Message, gc: XPlayer):
         "header": "Get Song Playlist in current voive chat",
         "usage": "use {tr}playlist",
     },
+    filter_me=False,
+    check_client=True,
     allow_private=False,
     allow_bots=False,
+    check_downpath=True,
 )
 @add_groupcall
 async def playlist_voice_chat(m: Message, gc: XPlayer):
     """Song Playlist"""
+    if (
+        m.from_user
+        and not (
+            m.from_user.id in Config.OWNER_ID
+            or (
+                (m.from_user.id in await admemes())
+                and ("stopvc" in Config.ALLOWED_COMMANDS)
+            )
+        )
+        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+    ):
+        return
     await m.edit_or_send_as_file(gc.get_playlist(), disable_web_page_preview=True)
 
 
@@ -1023,11 +1158,26 @@ async def playlist_voice_chat(m: Message, gc: XPlayer):
         "flags": {"-d": "disable for all chats"},
     },
     allow_channels=False,
+    filter_me=False,
+    check_client=True,
     allow_private=False,
     allow_bots=False,
+    check_downpath=True,
 )
 async def groupmode_voice_chat(m: Message):
     """ enable / disable playvc for group members """
+    if (
+        m.from_user
+        and not (
+            m.from_user.id in Config.OWNER_ID
+            or (
+                (m.from_user.id in await admemes())
+                and ("stopvc" in Config.ALLOWED_COMMANDS)
+            )
+        )
+        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+    ):
+        return
     await m.edit(await set_group_mode(m.chat.id, bool("-d" in m.flags)), del_in=5)
 
 
