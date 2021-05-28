@@ -63,8 +63,6 @@ STREAM_LINK = re.compile(r"https?://[\S]+\.(?:m3u8?|audio|mp3|aac|[a-z]{1,4}:[0-
 FFMPEG_PROCESSES = {}
 MAX_DURATION = int(os.environ.get("VC_SONG_MAX_DURATION", 600))
 VC_GROUP_MODE_CHATS: Set[int] = set()
-VC_GROUP_ADMEME_CHATS: Set[int] = set()
-
 
 async def _init() -> None:
     global VC_GROUP_MODE_CHATS
@@ -73,7 +71,7 @@ async def _init() -> None:
         VC_GROUP_MODE_CHATS = set(gm_chats["chat_ids"])
     
     if s := await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}):
-        VC_GROUP_ADMEME_CHATS = set(s["chat_ids"])
+        VC_GROUP_ADMEME_CHATS = s["chat_ids"]
 
 async def admemes(id):
     k = await userge.get_chat_members(id, filter="administrators")
