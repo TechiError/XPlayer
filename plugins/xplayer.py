@@ -673,9 +673,9 @@ async def join_voice_chat(m: Message, gc: XPlayer):
             or (
                 (m.from_user.id in await admemes(m.chat.id))
                 and ("joinvc" in Config.ALLOWED_COMMANDS)
+                and m.chat.id not in VC_GROUP_ADMEME_CHATS
             )
         )
-        and m.chat.id not in VC_GROUP_ADMEME_CHATS
     ):
         return
     try:
