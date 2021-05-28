@@ -66,12 +66,8 @@ VC_GROUP_MODE_CHATS: Set[int] = set()
 
 async def _init() -> None:
     global VC_GROUP_MODE_CHATS
-    global VC_GROUP_ADMEME_CHATS
     if gm_chats := await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_MODE_CHAT"}):
         VC_GROUP_MODE_CHATS = set(gm_chats["chat_ids"])
-    
-    if s := await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}):
-        VC_GROUP_ADMEME_CHATS = s["chat_ids"]
 
 async def admemes(id):
     k = await userge.get_chat_members(id, filter="administrators")
@@ -673,9 +669,9 @@ async def join_voice_chat(m: Message, gc: XPlayer):
             or (
                 (m.from_user.id in await admemes(m.chat.id))
                 and ("joinvc" in Config.ALLOWED_COMMANDS)
-                and m.chat.id not in VC_GROUP_ADMEME_CHATS
             )
         )
+        and m.chat.id not in (await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}))["chat_ids"]
     ):
         return
     try:
@@ -714,7 +710,7 @@ async def skip_song_voice_chat(m: Message, gc: XPlayer):
                 and ("skipvc" in Config.ALLOWED_COMMANDS)
             )
         )
-        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+        and m.chat.id not in (await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}))["chat_ids"]
     ):
         return
     if len(gc.playlist) == 0:
@@ -888,7 +884,7 @@ async def stop_voice_chat(m: Message, gc: XPlayer):
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
-        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+        and m.chat.id not in (await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}))["chat_ids"]
     ):
         return
     if "-all" in m.flags:
@@ -934,7 +930,7 @@ async def pause_voice_chat(m: Message, gc: XPlayer):
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
-        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+        and m.chat.id not in (await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}))["chat_ids"]
     ):
         return
     await m.edit("⏸  __Pausing Media__ ...", del_in=5)
@@ -988,7 +984,7 @@ async def mute_voice_chat(m: Message, gc: XPlayer):
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
-        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+        and m.chat.id not in (await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}))["chat_ids"]
     ):
         return
     await m.edit("🔇  __Muting Self__ ...", del_in=5)
@@ -1021,7 +1017,7 @@ async def unmute_voice_chat(m: Message, gc: XPlayer):
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
-        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+        and m.chat.id not in (await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}))["chat_ids"]
     ):
         return
     await m.edit("🔈  __UnMuting Self__ ...", del_in=5)
@@ -1054,7 +1050,7 @@ async def change_vol(m: Message, gc: XPlayer):
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
-        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+        and m.chat.id not in (await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}))["chat_ids"]
     ):
         return
     if m.input_str and (vol := m.input_str.strip()).isdigit():
@@ -1126,7 +1122,7 @@ async def start_radio(m: Message, gc: XPlayer):
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
-        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+        and m.chat.id not in (await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}))["chat_ids"]
     ):
         return
     text = None
@@ -1179,7 +1175,7 @@ async def playlist_voice_chat(m: Message, gc: XPlayer):
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
-        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+        and m.chat.id not in (await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}))["chat_ids"]
     ):
         return
     await m.edit_or_send_as_file(gc.get_playlist(), disable_web_page_preview=True)
@@ -1209,7 +1205,7 @@ async def groupmode_voice_chat(m: Message):
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
-        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+        and m.chat.id not in (await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}))["chat_ids"]
     ):
         return
     await m.edit(await set_group_mode(m.chat.id, bool("-d" in m.flags)), del_in=5)
