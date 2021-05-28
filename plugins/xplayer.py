@@ -63,9 +63,10 @@ STREAM_LINK = re.compile(r"https?://[\S]+\.(?:m3u8?|audio|mp3|aac|[a-z]{1,4}:[0-
 FFMPEG_PROCESSES = {}
 MAX_DURATION = int(os.environ.get("VC_SONG_MAX_DURATION", 600))
 VC_GROUP_MODE_CHATS: Set[int] = set()
-
+VC_GROUP_ADMEME_CHATS: Set[int] = set()
 async def _init() -> None:
     global VC_GROUP_MODE_CHATS
+    global VC_GROUP_ADMEME_CHATS
     if gm_chats := await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_MODE_CHAT"}):
         VC_GROUP_MODE_CHATS = set(gm_chats["chat_ids"])
 
