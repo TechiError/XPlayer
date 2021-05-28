@@ -706,13 +706,18 @@ async def skip_song_voice_chat(m: Message, gc: XPlayer):
         and not (
             m.from_user.id in Config.OWNER_ID
             or (
-                (m.from_user.id in await admemes(m.chat.id))
+                (m.from_user.id in Config.SUDO_USERS)
                 and ("skipvc" in Config.ALLOWED_COMMANDS)
             )
+            or (
+                (m.chat.id in (await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}))["chat_ids"]) 
+                and m.from_user.id in await admemes(m.chat.id)
+                and ("skipvc" in Config.ALLOWED_COMMANDS)
+            )  
         )
-        and m.chat.id not in (await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}))["chat_ids"]
     ):
         return
+
     if len(gc.playlist) == 0:
         await m.edit("No Songs to Skip", del_in=5)
         return
