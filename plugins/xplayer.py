@@ -456,6 +456,25 @@ async def set_group_mode(chat_id: int, clearall: bool = False) -> str:
     )
     return out
 
+async def set_group_admeme_mode(chat_id: int, clearall: bool = False) -> str:
+    global VC_GROUP_ADMEME_CHATS
+    if clearall:
+        out = f"VC Cmds **disabled** for `All Chats` (**{len(VC_GROUP_ADMEME_CHATS)}**)"
+        VC_GROUP_ADMEME_CHATS.clear()
+    else:
+        if chat_id in VC_GROUP_ADMEME_CHATS:
+            VC_GROUP_ADMEME_CHATS.remove(chat_id)
+            out = f"❌  VC Cmds **disabled** for __Chat ID__: `{chat_id}`"
+        else:
+            VC_GROUP_ADMEME_CHATS.add(chat_id)
+            out = f"✅  VC Cmds **enabled** for __Chat ID__: `{chat_id}`"
+    await SAVED_SETTINGS.update_one(
+        {"_id": "VC_GROUP_ADMEME_CHATS"},
+        {"$set": {"chat_ids": list(VC_GROUP_ADMEME_CHATS)}},
+        upsert=True,
+    )
+    return out
+
 
 async def append_playlist(gc: XPlayer, m: Message, media_grp: bool, **kwargs) -> None:
     thumb = kwargs["thumb"]
@@ -1195,6 +1214,20 @@ async def groupmode_voice_chat(m: Message):
     ):
         return
     await m.edit(await set_group_mode(m.chat.id, bool("-d" in m.flags)), del_in=5)
+
+@userge.on_cmd(
+    "auth",
+    about={
+        "header": "Allow current group admins to use vccmds.",
+        "flags": {"-d": "disable for all chats"},
+    },
+    allow_channels=False,
+    allow_private=False,
+    allow_bots=False,
+)
+async def die(m: Message, gc: XPlayer):
+    await m.edit(await set_group_admeme_mode(m.chat.id, bool("-d" in m.flags)), del_in=5)
+
 
 
 @userge.on_cmd(
