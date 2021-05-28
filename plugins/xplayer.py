@@ -153,7 +153,7 @@ async def get_groupcall(chat_id: int) -> XPlayer:
 async def network_status_changed_handler(gc: XPlayer, is_connected: bool) -> None:
     if is_connected:
         gc.is_active = True
-        LOG.info(f"JOINED VC in {gc.chat_id}")
+        LOG.info(f"JOINED Voice Chat in {gc.chat_id}")
     else:
         gc.is_active = False
         LOG.info(f"LEFT VC in {gc.chat_id}")
