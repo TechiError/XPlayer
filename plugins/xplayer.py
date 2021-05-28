@@ -649,7 +649,7 @@ async def join_voice_chat(m: Message, gc: XPlayer):
         and not (
             m.from_user.id in Config.OWNER_ID
             or (
-                (m.from_user.id in await admemes(message.chat.id))
+                (m.from_user.id in await admemes(m.chat.id))
                 and ("joinvc" in Config.ALLOWED_COMMANDS)
             )
         )
@@ -688,7 +688,7 @@ async def skip_song_voice_chat(m: Message, gc: XPlayer):
         and not (
             m.from_user.id in Config.OWNER_ID
             or (
-                (m.from_user.id in await admemes(message.chat.id))
+                (m.from_user.id in await admemes(m.chat.id))
                 and ("skipvc" in Config.ALLOWED_COMMANDS)
             )
         )
@@ -857,6 +857,18 @@ async def play_voice_chat(m: Message, gc: XPlayer):
 @add_groupcall
 async def stop_voice_chat(m: Message, gc: XPlayer):
     """Leave voice chat."""
+    if (
+        m.from_user
+        and not (
+            m.from_user.id in Config.OWNER_ID
+            or (
+                (m.from_user.id in await admemes(m.chat.id))
+                and ("stopvc" in Config.ALLOWED_COMMANDS)
+            )
+        )
+        and m.chat.id not in VC_GROUP_ADMEME_CHATS
+    ):
+        return
     if "-all" in m.flags:
         await m.edit("Leaving All Voice chats")
         kill_list = []
@@ -896,7 +908,7 @@ async def pause_voice_chat(m: Message, gc: XPlayer):
         and not (
             m.from_user.id in Config.OWNER_ID
             or (
-                (m.from_user.id in await admemes(message.chat.id))
+                (m.from_user.id in await admemes(m.chat.id))
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
@@ -950,7 +962,7 @@ async def mute_voice_chat(m: Message, gc: XPlayer):
         and not (
             m.from_user.id in Config.OWNER_ID
             or (
-                (m.from_user.id in await admemes(message.chat.id))
+                (m.from_user.id in await admemes(m.chat.id))
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
@@ -983,7 +995,7 @@ async def unmute_voice_chat(m: Message, gc: XPlayer):
         and not (
             m.from_user.id in Config.OWNER_ID
             or (
-                (m.from_user.id in await admemes(message.chat.id))
+                (m.from_user.id in await admemes(m.chat.id))
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
@@ -1016,7 +1028,7 @@ async def change_vol(m: Message, gc: XPlayer):
         and not (
             m.from_user.id in Config.OWNER_ID
             or (
-                (m.from_user.id in await admemes(message.chat.id))
+                (m.from_user.id in await admemes(m.chat.id))
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
@@ -1088,7 +1100,7 @@ async def start_radio(m: Message, gc: XPlayer):
         and not (
             m.from_user.id in Config.OWNER_ID
             or (
-                (m.from_user.id in await admemes(message.chat.id))
+                (m.from_user.id in await admemes(m.chat.id))
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
@@ -1141,7 +1153,7 @@ async def playlist_voice_chat(m: Message, gc: XPlayer):
         and not (
             m.from_user.id in Config.OWNER_ID
             or (
-                (m.from_user.id in await admemes(message.chat.id))
+                (m.from_user.id in await admemes(m.chat.id))
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
@@ -1171,7 +1183,7 @@ async def groupmode_voice_chat(m: Message):
         and not (
             m.from_user.id in Config.OWNER_ID
             or (
-                (m.from_user.id in await admemes(message.chat.id))
+                (m.from_user.id in await admemes(m.chat.id))
                 and ("stopvc" in Config.ALLOWED_COMMANDS)
             )
         )
