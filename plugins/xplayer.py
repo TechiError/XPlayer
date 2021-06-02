@@ -763,6 +763,22 @@ async def skip_song_voice_chat(m: Message, gc: XPlayer):
     allow_bots=False,
     check_downpath=True,
 )
+@userge.on_cmd(
+    "play",
+    about={
+        "header": "Play song in voice chats",
+        "description": "Play Songs in VC by audio file / media group or song name or song URL"
+        "\n(supports spotify, youtube, deezer links etc.)",
+        "usage": "{tr}playvc [reply to audio msg / Media group | song name | URL]",
+        "examples": "{tr}playvc Beliver OR {tr}playvc [reply to audio file]",
+    },
+    filter_me=False,
+    check_client=True,
+    allow_private=False,
+    allow_bots=False,
+    trigger="/"
+    check_downpath=True,
+)
 @add_groupcall
 async def play_voice_chat(m: Message, gc: XPlayer):
     """Play songs..."""
