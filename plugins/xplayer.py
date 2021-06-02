@@ -776,7 +776,7 @@ async def skip_song_voice_chat(m: Message, gc: XPlayer):
     check_client=True,
     allow_private=False,
     allow_bots=False,
-    trigger="/"
+    trigger="/",
     check_downpath=True,
 )
 @add_groupcall
