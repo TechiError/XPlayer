@@ -794,6 +794,8 @@ async def play_voice_chat(m: Message, gc: XPlayer):
         and m.chat.id not in VC_GROUP_MODE_CHATS
     ):
         return
+    if not gc.is_active:
+        await gc.join()
     await m.edit("`Processing ...`")
     reply = m.reply_to_message
     playlist = gc.playlist
