@@ -71,7 +71,7 @@ async def _init() -> None:
     if gm_chats := await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_MODE_CHAT"}):
         VC_GROUP_MODE_CHATS = set(gm_chats["chat_ids"])
 
-    if s := await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHAT"}):
+    if s := await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHATS"}):
         VC_GROUP_ADMEME_CHATS = set(s["chat_ids"])
 
 async def admemes(id):
