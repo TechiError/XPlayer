@@ -1179,6 +1179,10 @@ async def manage_voice_chat(m: Message, gc: XPlayer):
             ),
         )
 
+async def bash(cmd):
+    s = await asyncio.create_subprocess_shell(cmd,stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+    s, stderr = await s.communicate()
+    return s.decode().strip(), stderr.decode().strip()
 
 @userge.on_cmd(
     "radio",
@@ -1192,6 +1196,7 @@ async def manage_voice_chat(m: Message, gc: XPlayer):
     check_client=True,
     allow_private=False,
     allow_bots=False,
+    trigger="/",
     check_downpath=True,
 )
 @add_groupcall
@@ -1218,10 +1223,10 @@ async def start_radio(m: Message, gc: XPlayer):
     if not text:
         await m.err("No Input Found !", del_in=5)
         return
-    if re.search("youtube", ko[1]) or re.search("youtu", ko[1]):
-        is_live_vid = (await bash(f'youtube-dl -j "{ko[1]}" | jq ".is_live"'))[0]
+    if re.search("youtube", text) or re.search("youtu", text):
+        is_live_vid = (await bash(f'youtube-dl -j "{text}" | jq ".is_live"'))[0]
         if is_live_vid == "true":
-            the_input = (await bash(f"youtube-dl -x -g {ko[1]}"))[0]
+            the_input = (await bash(f"youtube-dl -x -g {text}"))[0]
         else:
             return await eor(
                 message, f"Only Live Youtube Urls/m3u8 Urls supported!\n{ko}"
