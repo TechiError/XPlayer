@@ -1233,6 +1233,8 @@ async def start_radio(m: Message, gc: XPlayer):
             )
     elif not (match := STREAM_LINK.search(text)):
         return await m.edit("No Valid station id found to start the radio !", del_in=7)
+    else:
+        the_input = None
     await m.edit("📻 Connecting ...")
     radioraw = keypath(f"radio_{m.chat.id}")
     await kill_radio(m.chat.id)
