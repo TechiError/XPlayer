@@ -708,6 +708,21 @@ async def join_voice_chat(m: Message, gc: XPlayer):
     allow_bots=False,
     check_downpath=True,
 )
+@userge.on_cmd(
+    "skip",
+    about={
+        "header": "Skip [n] songs",
+        "description": "Skip current playing song",
+        "usage": "{tr}skipvc [number of songs to skip]",
+        "examples": "{tr}skipvc or {tr}skipvc 5",
+    },
+    filter_me=False,
+    check_client=True,
+    allow_private=False,
+    allow_bots=False,
+    check_downpath=True,
+    trigger="/",
+)
 @add_groupcall
 async def skip_song_voice_chat(m: Message, gc: XPlayer):
     """Skip Current playing song."""
@@ -1190,12 +1205,8 @@ async def start_radio(m: Message, gc: XPlayer):
                 (m.from_user.id in Config.SUDO_USERS)
                 and ("radio" in Config.ALLOWED_COMMANDS)
             )
-            or (
-                (m.chat.id in VC_GROUP_ADMEME_CHATS) 
-                and m.from_user.id in await admemes(m.chat.id)
-                and ("radio" in Config.ALLOWED_COMMANDS)
-            )  
         )
+        and m.chat.id not in VC_GROUP_MODE_CHATS
     ):
         return
     text = None
@@ -1207,12 +1218,21 @@ async def start_radio(m: Message, gc: XPlayer):
     if not text:
         await m.err("No Input Found !", del_in=5)
         return
-    if not (match := STREAM_LINK.search(text)):
+    if re.search("youtube", ko[1]) or re.search("youtu", ko[1]):
+        is_live_vid = (await bash(f'youtube-dl -j "{ko[1]}" | jq ".is_live"'))[0]
+        if is_live_vid == "true":
+            the_input = (await bash(f"youtube-dl -x -g {ko[1]}"))[0]
+        else:
+            return await eor(
+                message, f"Only Live Youtube Urls/m3u8 Urls supported!\n{ko}"
+            )
+    elif not (match := STREAM_LINK.search(text)):
         return await m.edit("No Valid station id found to start the radio !", del_in=7)
     await m.edit("📻 Connecting ...")
     radioraw = keypath(f"radio_{m.chat.id}")
     await kill_radio(m.chat.id)
-    station_stream_url = match.group(0)
+    if station_stream_url == None:
+        station_stream_url = match.group(0)
     process = (
         ffmpeg.input(station_stream_url)
         .output(radioraw, format="s16le", acodec="pcm_s16le", ac=2, ar="48k")
