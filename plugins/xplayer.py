@@ -1236,7 +1236,9 @@ async def start_radio(m: Message, gc: XPlayer):
     await m.edit("📻 Connecting ...")
     radioraw = keypath(f"radio_{m.chat.id}")
     await kill_radio(m.chat.id)
-    if station_stream_url == None:
+    if the_input:
+        station_stream_url = the_input
+    else:
         station_stream_url = match.group(0)
     process = (
         ffmpeg.input(station_stream_url)
