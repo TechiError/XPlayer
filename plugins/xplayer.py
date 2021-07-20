@@ -349,6 +349,25 @@ def download_yt_song(yt_id: str) -> Optional[str]:
             return audio_path
         LOG.info(status)
 
+def check_vc_admemes(func):
+    async def wrapper(_, c_q: CallbackQuery):
+        if c_q.from_user and (
+            c_q.from_user.id in Config.OWNER_ID or c_q.from_user.id in Config.SUDO_USERS or ((c_q.message.chat.id in VC_GROUP_ADMEME_CHATS) and (c_q.from_user.id in await admemes(c_q.message.chat.id)))
+        ):
+            try:
+                await func(c_q)
+            except FloodWait as e:
+                await asyncio.sleep(e.x + 5)
+            except MessageNotModified:
+                pass
+        else:
+            await c_q.answer(
+                "Only Admins of authorized chats can access this!",
+                show_alert=True,
+            )
+
+    return wrapper
+
 
 def voice_chat_helpers_buttons():
     buttons = [
@@ -551,7 +570,7 @@ if userge.has_bot:
         )
 
     @userge.bot.on_callback_query(filters.regex(pattern=r"^vc_([a-z]+)_([-a-z+]+)$"))
-    @check_owner
+    @check_vc_admemes
     async def gc_toggles(c_q: CallbackQuery):
         answer = ""
         alert = False
@@ -906,7 +925,7 @@ async def play_voice_chat(m: Message, gc: XPlayer):
 
 
 @userge.on_cmd(
-    "stopvc",
+    "stop",
     about={
         "header": "Leave the fun.",
         "description": "Leave voice chat in current group.",
@@ -919,6 +938,7 @@ async def play_voice_chat(m: Message, gc: XPlayer):
     allow_private=False,
     allow_bots=False,
     check_downpath=True,
+    trigger="/",
 )
 @add_groupcall
 async def stop_voice_chat(m: Message, gc: XPlayer):
@@ -957,7 +977,7 @@ async def stop_voice_chat(m: Message, gc: XPlayer):
 
 
 @userge.on_cmd(
-    "pausevc",
+    "pause",
     about={
         "header": "Silence for a moment !",
         "description": "Pause current playing song.",
@@ -969,6 +989,7 @@ async def stop_voice_chat(m: Message, gc: XPlayer):
     allow_private=False,
     allow_bots=False,
     check_downpath=True,
+    trigger="/",
 )
 @add_groupcall
 async def pause_voice_chat(m: Message, gc: XPlayer):
@@ -994,7 +1015,7 @@ async def pause_voice_chat(m: Message, gc: XPlayer):
 
 
 @userge.on_cmd(
-    "resumevc",
+    "resume",
     about={
         "header": "Let the sound begin !",
         "description": "Resume current paused song.",
@@ -1006,6 +1027,7 @@ async def pause_voice_chat(m: Message, gc: XPlayer):
     allow_private=False,
     allow_bots=False,
     check_downpath=True,
+    trigger="/",
 )
 @add_groupcall
 async def resume_voice_chat(m: Message, gc: XPlayer):
@@ -1031,7 +1053,7 @@ async def resume_voice_chat(m: Message, gc: XPlayer):
 
 
 @userge.on_cmd(
-    "mutevc",
+    "mute",
     about={
         "header": "Shhhh stay silent.",
         "description": "Mute voice chat.",
@@ -1043,6 +1065,7 @@ async def resume_voice_chat(m: Message, gc: XPlayer):
     allow_private=False,
     allow_bots=False,
     check_downpath=True,
+    trigger="/",
 )
 @add_groupcall
 async def mute_voice_chat(m: Message, gc: XPlayer):
@@ -1068,7 +1091,7 @@ async def mute_voice_chat(m: Message, gc: XPlayer):
 
 
 @userge.on_cmd(
-    "unmutevc",
+    "unmute",
     about={
         "header": "Yey you can talk.",
         "description": "Mute voice chat.",
@@ -1080,6 +1103,7 @@ async def mute_voice_chat(m: Message, gc: XPlayer):
     allow_private=False,
     allow_bots=False,
     check_downpath=True,
+    trigger="/"
 )
 @add_groupcall
 async def unmute_voice_chat(m: Message, gc: XPlayer):
@@ -1117,6 +1141,7 @@ async def unmute_voice_chat(m: Message, gc: XPlayer):
     allow_private=False,
     allow_bots=False,
     check_downpath=True,
+    trigger="/",
 )
 @add_groupcall
 async def change_vol(m: Message, gc: XPlayer):
@@ -1146,7 +1171,7 @@ async def change_vol(m: Message, gc: XPlayer):
 
 
 @userge.on_cmd(
-    "managevc",
+    "manage",
     about={
         "header": "Manage voice chats.",
         "description": "Manage voice chats in user friendly way.",
@@ -1158,6 +1183,7 @@ async def change_vol(m: Message, gc: XPlayer):
     allow_private=False,
     allow_bots=False,
     check_downpath=True,
+    trigger="/"
 )
 @add_groupcall
 async def manage_voice_chat(m: Message, gc: XPlayer):
@@ -1214,6 +1240,8 @@ async def start_radio(m: Message, gc: XPlayer):
         and m.chat.id not in VC_GROUP_MODE_CHATS
     ):
         return
+    if not gc.is_active:
+        await gc.join()
     text = None
     reply = m.reply_to_message
     if m.input_str:
