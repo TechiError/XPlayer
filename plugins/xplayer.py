@@ -525,7 +525,7 @@ async def append_playlist(gc: XPlayer, m: Message, media_grp: bool, **kwargs) ->
 if userge.has_bot:
 
     @userge.bot.on_callback_query(filters.regex(pattern=r"^vcbtn_([a-z]+)$"))
-    @check_owner
+    @check_vc_admemes
     async def manage_vc_settings(c_q: CallbackQuery):
         setting = c_q.matches[0].group(1)
         chat_id = c_q.message.chat.id
