@@ -93,6 +93,7 @@ class XPlayer(GroupCallFactory):
         self.input_filename = ""
         super().__init__(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
         self.gc = super().get_file_group_call(self.input_filename)
+        self.add_handler = self.gc.add_handler
         #super().get_file_group_call(self.input_filename)
     
     def start_playout(self, key: str):
@@ -141,10 +142,10 @@ vc_chats: Dict[int, XPlayer] = {}
 async def get_groupcall(chat_id: int) -> XPlayer:
     if not vc_chats.get(chat_id):
         group_call = vc_chats[chat_id] = XPlayer(chat_id)
-        group_call.gc.add_handler(
+        group_call.add_handler(
             network_status_changed_handler, GroupCallFileAction.NETWORK_STATUS_CHANGED
         )
-        group_call.gc.add_handler(playout_ended_handler, GroupCallFileAction.PLAYOUT_ENDED)
+        group_call.add_handler(playout_ended_handler, GroupCallFileAction.PLAYOUT_ENDED)
         if userge.has_bot:
             try:
                 await userge.get_chat_member(
