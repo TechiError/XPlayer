@@ -85,10 +85,15 @@ async def admemes(id):
 class XPlayer(GroupCallFactory):
     def __init__(self, chat_id: int):
         self.replay_songs = False
+        self.gc.replay_songs = self.replay_songs
         self.is_active = False
+        self.gc.is_active = self.is_active
         self.current_vol = 100
+        self.gc.current_vol = self.current_vol
         self.playlist = []
+        self.gc.playlist = self.playlist
         self.chat_id = chat_id
+        self.gc.chat_id = self.chat_id
         self.chat_has_bot = False
         self.input_filename = ""
         super().__init__(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
