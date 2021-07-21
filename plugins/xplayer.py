@@ -140,7 +140,7 @@ vc_chats: Dict[int, XPlayer] = {}
 
 async def get_groupcall(chat_id: int) -> XPlayer:
     if not vc_chats.get(chat_id):
-        group_call = vc_chats[chat_id] = XPlayer.gc(chat_id)
+        group_call = vc_chats[chat_id] = XPlayer(chat_id).gc
         group_call.add_handler(
             network_status_changed_handler, GroupCallFileAction.NETWORK_STATUS_CHANGED
         )
