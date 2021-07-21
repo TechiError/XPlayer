@@ -82,7 +82,8 @@ async def admemes(id):
        m.append(i.user.id)
     return m
 
-class XPlayer(GroupCallFactory):
+vclient = GroupCallFactory(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
+class XPlayer(GroupCallFactory.get_file_group_call):
     def __init__(self, chat_id: int):
         self.replay_songs = False
         self.is_active = False
@@ -90,16 +91,12 @@ class XPlayer(GroupCallFactory):
         self.playlist = []
         self.chat_id = chat_id
         self.chat_has_bot = False
-        self.gc.input_filename = ""
-        super().__init__(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
-        global self.gc
-        self.gc = super().get_file_group_call(self.gc.input_filename)
-        self.add_handler = self.gc.add_handler
-        self.gc.chat_id = self.chat_id
+        self.input_filename = ""
+        super().__init__(self.gc.input_filename)
         #super().get_file_group_call(self.input_filename)
     
     def start_playout(self, key: str):
-        self.gc.input_filename = keypath(key)
+        self.input_filename = keypath(key)
 
     def replay(self) -> bool:
         self.play_on_repeat = self.replay_songs = not self.replay_songs
@@ -125,14 +122,14 @@ class XPlayer(GroupCallFactory):
         # Joining the same group call can crash the bot
         # if not self.is_connected: (https://t.me/tgcallschat/7563)
         if not self.is_active:
-            await self.gc.start(self.chat_id)
+            await self.start(self.chat_id)
             self.is_active = True
 
     async def leave(self):
         self.input_filename = ""
         # https://nekobin.com/nonaconeba.py
         try:
-            await self.gc.stop()
+            await self.stop()
             self.is_active = False
         except AttributeError:
             pass
