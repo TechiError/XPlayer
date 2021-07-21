@@ -92,7 +92,7 @@ class XPlayer(GroupCallFactory):
         self.chat_id = chat_id
         self.chat_has_bot = False
         super().__init__(
-            client=userge, play_on_repeat=self.replay_songs, path_to_log_file=""
+            (client=userge, path_to_log_file="").get_file_group_call(play_on_repeat=self.replay_songs)
         )
 
     def start_playout(self, key: str):
