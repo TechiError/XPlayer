@@ -144,7 +144,7 @@ async def get_groupcall(chat_id: int) -> XPlayer:
         group_call.gc.add_handler(
             network_status_changed_handler, GroupCallFileAction.NETWORK_STATUS_CHANGED
         )
-        group_call.add_handler(playout_ended_handler, GroupCallFileAction.PLAYOUT_ENDED)
+        group_call.gc.add_handler(playout_ended_handler, GroupCallFileAction.PLAYOUT_ENDED)
         if userge.has_bot:
             try:
                 await userge.get_chat_member(
