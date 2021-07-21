@@ -100,6 +100,11 @@ class XPlayer(GroupCallFactory):
         self.gc.chat_id = self.chat_id
         self.gc.chat_has_bot = self.chat_has_bot
         self.gc.input_filename = self.input_filename
+        self.gc.join = join
+        self.gc.start_playout = start_playout
+        self.gc.replay = replay
+        self.gc.get_playlist = get_playlist
+        self.gc.leave = leave
         #super().get_file_group_call(self.input_filename)
     
     def start_playout(self, key: str):
