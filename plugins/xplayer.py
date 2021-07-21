@@ -83,7 +83,7 @@ async def admemes(id):
     return m
 
 vclient = GroupCallFactory(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
-class XPlayer(GroupCallFactory.get_file_group_call):
+class XPlayer(vclient.get_file_group_call):
     def __init__(self, chat_id: int):
         self.replay_songs = False
         self.is_active = False
