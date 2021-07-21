@@ -91,9 +91,8 @@ class XPlayer(GCF):
         self.playlist = []
         self.chat_id = chat_id
         self.chat_has_bot = False
-        super().get_file_group_call(
-            play_on_repeat=self.replay_songs
-        )
+        self.get_file_group_call = play_on_repeat=self.replay_songs
+        super().__init__()
 
     def start_playout(self, key: str):
         self.input_filename = keypath(key)
