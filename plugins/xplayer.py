@@ -81,9 +81,9 @@ async def admemes(id):
       if i.can_manage_voice_chats:
        m.append(i.user.id)
     return m
+GCF = GroupCallFactory(client=userge, path_to_log_file="")
 
-
-class XPlayer(GroupCallFactory):
+class XPlayer(GCF):
     def __init__(self, chat_id: int):
         self.replay_songs = False
         self.is_active = False
@@ -91,7 +91,7 @@ class XPlayer(GroupCallFactory):
         self.playlist = []
         self.chat_id = chat_id
         self.chat_has_bot = False
-        super(client=userge, path_to_log_file="").get_file_group_call(
+        super().get_file_group_call(
             play_on_repeat=self.replay_songs
         )
 
