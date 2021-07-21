@@ -94,7 +94,8 @@ class XPlayer(GroupCallFactory):
         super().__init__(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
         self.gc = super().get_file_group_call(self.input_filename)
         #super().get_file_group_call(self.input_filename)
-
+    gc = self.gc
+    
     def start_playout(self, key: str):
         self.input_filename = keypath(key)
 
