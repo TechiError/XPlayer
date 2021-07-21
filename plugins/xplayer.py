@@ -90,6 +90,7 @@ class XPlayer(GroupCallFactory):
         self.playlist = []
         self.chat_id = chat_id
         self.chat_has_bot = False
+        self.input_filename = ""
         super().__init__(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
         super().get_file_group_call(self.input_filename)
 
