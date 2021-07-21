@@ -51,11 +51,11 @@ from youtubesearchpython.__future__ import VideosSearch
 
 try:
     import ffmpeg
-    from pytgcalls import GroupCall, GroupCallAction
+    from pytgcalls import GroupCallFactory, GroupCallFileAction
 except ModuleNotFoundError:
     os.system("pip3 install -U pytgcalls ffmpeg-python")
     import ffmpeg
-    from pytgcalls import GroupCall, GroupCallAction
+    from pytgcalls import GroupCallFactory, GroupCallFileAction
 
 
 LOG = userge.getLogger(__name__)
@@ -82,7 +82,8 @@ async def admemes(id):
        m.append(i.user.id)
     return m
 
-class XPlayer(GroupCall):
+
+class XPlayer(GroupCallFactory):
     def __init__(self, chat_id: int):
         self.replay_songs = False
         self.is_active = False
@@ -91,7 +92,7 @@ class XPlayer(GroupCall):
         self.chat_id = chat_id
         self.chat_has_bot = False
         super().__init__(
-            client=userge, play_on_repeat=self.replay_songs, path_to_log_file=""
+            (client=userge, play_on_repeat=self.replay_songs, path_to_log_file="").get_file_group_call()
         )
 
     def start_playout(self, key: str):
@@ -141,9 +142,9 @@ async def get_groupcall(chat_id: int) -> XPlayer:
     if not vc_chats.get(chat_id):
         group_call = vc_chats[chat_id] = XPlayer(chat_id)
         group_call.add_handler(
-            network_status_changed_handler, GroupCallAction.NETWORK_STATUS_CHANGED
+            network_status_changed_handler, GroupCallFileAction.NETWORK_STATUS_CHANGED
         )
-        group_call.add_handler(playout_ended_handler, GroupCallAction.PLAYOUT_ENDED)
+        group_call.add_handler(playout_ended_handler, GroupCallFileAction.PLAYOUT_ENDED)
         if userge.has_bot:
             try:
                 await userge.get_chat_member(
