@@ -82,8 +82,8 @@ async def admemes(id):
        m.append(i.user.id)
     return m
 
-vclient = GroupCallFactory(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
-class XPlayer(vclient.get_file_group_call):
+# vclient = GroupCallFactory(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
+class XPlayer(GroupCallFactory):
     def __init__(self, chat_id: int):
         self.replay_songs = False
         self.is_active = False
@@ -92,14 +92,14 @@ class XPlayer(vclient.get_file_group_call):
         self.chat_id = chat_id
         self.chat_has_bot = False
         self.input_filename = ""
-        super().__init__(self.gc.input_filename)
-        #super().get_file_group_call(self.input_filename)
-    
+        super().__init__(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
+        self.gc = super().get_file_group_call()
+
     def start_playout(self, key: str):
-        self.input_filename = keypath(key)
+        self.gc.input_filename = keypath(key)
 
     def replay(self) -> bool:
-        self.play_on_repeat = self.replay_songs = not self.replay_songs
+        self.gc.play_on_repeat = self.replay_songs = not self.replay_songs
         return self.replay_songs
 
     def get_playlist(self) -> str:
@@ -122,14 +122,14 @@ class XPlayer(vclient.get_file_group_call):
         # Joining the same group call can crash the bot
         # if not self.is_connected: (https://t.me/tgcallschat/7563)
         if not self.is_active:
-            await self.start(self.chat_id)
+            await self.gc.start(self.chat_id)
             self.is_active = True
 
     async def leave(self):
-        self.input_filename = ""
+        self.gc.input_filename = ""
         # https://nekobin.com/nonaconeba.py
         try:
-            await self.stop()
+            await self.gc.stop()
             self.is_active = False
         except AttributeError:
             pass
@@ -141,10 +141,10 @@ vc_chats: Dict[int, XPlayer] = {}
 async def get_groupcall(chat_id: int) -> XPlayer:
     if not vc_chats.get(chat_id):
         group_call = vc_chats[chat_id] = XPlayer(chat_id)
-        group_call.add_handler(
+        group_call.gc.add_handler(
             network_status_changed_handler, GroupCallFileAction.NETWORK_STATUS_CHANGED
         )
-        group_call.add_handler(playout_ended_handler, GroupCallFileAction.PLAYOUT_ENDED)
+        group_call.gc.add_handler(playout_ended_handler, GroupCallFileAction.PLAYOUT_ENDED)
         if userge.has_bot:
             try:
                 await userge.get_chat_member(
