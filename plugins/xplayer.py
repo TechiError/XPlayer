@@ -91,7 +91,8 @@ class XPlayer(GroupCallFactory):
         self.chat_id = chat_id
         self.chat_has_bot = False
         self.input_filename = ""
-        super().__init__(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="").get_file_group_call(self.input_filename)
+        super().__init__(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
+        self.gc = super().get_file_group_call()
         #super().get_file_group_call(self.input_filename)
 
     def start_playout(self, key: str):
@@ -121,14 +122,14 @@ class XPlayer(GroupCallFactory):
         # Joining the same group call can crash the bot
         # if not self.is_connected: (https://t.me/tgcallschat/7563)
         if not self.is_active:
-            await super().start(self.chat_id)
+            await self.gc.start(self.chat_id)
             self.is_active = True
 
     async def leave(self):
         self.input_filename = ""
         # https://nekobin.com/nonaconeba.py
         try:
-            await super().stop()
+            await self.gc.stop()
             self.is_active = False
         except AttributeError:
             pass
