@@ -38,13 +38,7 @@ from userge.plugins.bot.alive import _parse_arg
 from userge.plugins.bot.utube_inline import BASE_YT_URL, get_yt_video_id, get_ytthumb
 from userge.plugins.misc.upload import check_thumb
 from userge.plugins.utils.songlink import find_url_from_msg, get_song_link
-from userge.utils import (
-    check_owner,
-    escape_markdown,
-    rand_key,
-    safe_filename,
-    time_formatter,
-)
+from userge.utils import escape_markdown, rand_key, safe_filename, time_formatter
 from wget import download
 from youtube_dl.utils import DownloadError, ExtractorError, GeoRestrictedError
 from youtubesearchpython.__future__ import VideosSearch
@@ -65,6 +59,8 @@ FFMPEG_PROCESSES = {}
 MAX_DURATION = int(os.environ.get("VC_SONG_MAX_DURATION", 600))
 VC_GROUP_MODE_CHATS: Set[int] = set()
 VC_GROUP_ADMEME_CHATS: Set[int] = set()
+
+
 async def _init() -> None:
     global VC_GROUP_MODE_CHATS
     global VC_GROUP_ADMEME_CHATS
@@ -74,15 +70,19 @@ async def _init() -> None:
     if s := await SAVED_SETTINGS.find_one({"_id": "VC_GROUP_ADMEME_CHATS"}):
         VC_GROUP_ADMEME_CHATS = set(s["chat_ids"])
 
+
 async def admemes(id):
     k = await userge.get_chat_members(id, filter="administrators")
     m = []
     for i in k:
-      if i.can_manage_voice_chats:
-       m.append(i.user.id)
+        if i.can_manage_voice_chats:
+            m.append(i.user.id)
     return m
 
+
 # vclient = GroupCallFactory(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
+
+
 class XPlayer(GroupCallFactory):
     def __init__(self, chat_id: int):
         self.replay_songs = False
@@ -92,7 +92,9 @@ class XPlayer(GroupCallFactory):
         self.chat_id = chat_id
         self.chat_has_bot = False
         self.input_filename = ""
-        super().__init__(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
+        super().__init__(
+            userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file=""
+        )
         self.gc = super().get_file_group_call()
         self.gc.chat_id = chat_id
         self.gc.playlist = self.playlist
@@ -146,7 +148,9 @@ async def get_groupcall(chat_id: int) -> XPlayer:
         group_call.gc.add_handler(
             network_status_changed_handler, GroupCallFileAction.NETWORK_STATUS_CHANGED
         )
-        group_call.gc.add_handler(playout_ended_handler, GroupCallFileAction.PLAYOUT_ENDED)
+        group_call.gc.add_handler(
+            playout_ended_handler, GroupCallFileAction.PLAYOUT_ENDED
+        )
         if userge.has_bot:
             try:
                 await userge.get_chat_member(
@@ -282,7 +286,7 @@ def convert_raw(audio_path: str, key: str = None) -> Optional[str]:
 
 def check_audio(duration: int, audio_key: str, playlist: List) -> Optional[str]:
     # Duration
-    if (invalid := (duration > MAX_DURATION or duration == 0)) :
+    if invalid := (duration > MAX_DURATION or duration == 0):
         return f"Song Duration is {'invalid' if duration == 0 else 'too long'}"
     # check if already in Playlist
     if playlist and (audio_key in [x["id"] for x in playlist]):
@@ -352,10 +356,16 @@ def download_yt_song(yt_id: str) -> Optional[str]:
             return audio_path
         LOG.info(status)
 
+
 def check_vc_admemes(func):
     async def wrapper(_, c_q: CallbackQuery):
         if c_q.from_user and (
-            c_q.from_user.id in Config.OWNER_ID or c_q.from_user.id in Config.SUDO_USERS or ((c_q.message.chat.id in VC_GROUP_ADMEME_CHATS) and (c_q.from_user.id in await admemes(c_q.message.chat.id)))
+            c_q.from_user.id in Config.OWNER_ID
+            or c_q.from_user.id in Config.SUDO_USERS
+            or (
+                (c_q.message.chat.id in VC_GROUP_ADMEME_CHATS)
+                and (c_q.from_user.id in await admemes(c_q.message.chat.id))
+            )
         ):
             try:
                 await func(c_q)
@@ -478,6 +488,7 @@ async def set_group_mode(chat_id: int, clearall: bool = False) -> str:
         upsert=True,
     )
     return out
+
 
 async def set_group_admeme_mode(chat_id: int, clearall: bool = False) -> str:
     global VC_GROUP_ADMEME_CHATS
@@ -690,19 +701,16 @@ if userge.has_bot:
 @add_groupcall
 async def join_voice_chat(m: Message, gc: XPlayer):
     """Join the voice chat."""
-    if (
-        m.from_user
-        and not (
-            m.from_user.id in Config.OWNER_ID
-            or (
-                (m.from_user.id in Config.SUDO_USERS)
-                and ("joinvc" in Config.ALLOWED_COMMANDS)
-            )
-            or (
-                (m.chat.id in VC_GROUP_ADMEME_CHATS)
-                and m.from_user.id in await admemes(m.chat.id)
-                and ("joinvc" in Config.ALLOWED_COMMANDS)
-            )  
+    if m.from_user and not (
+        m.from_user.id in Config.OWNER_ID
+        or (
+            (m.from_user.id in Config.SUDO_USERS)
+            and ("joinvc" in Config.ALLOWED_COMMANDS)
+        )
+        or (
+            (m.chat.id in VC_GROUP_ADMEME_CHATS)
+            and m.from_user.id in await admemes(m.chat.id)
+            and ("joinvc" in Config.ALLOWED_COMMANDS)
         )
     ):
         return
@@ -748,19 +756,16 @@ async def join_voice_chat(m: Message, gc: XPlayer):
 @add_groupcall
 async def skip_song_voice_chat(m: Message, gc: XPlayer):
     """Skip Current playing song."""
-    if (
-        m.from_user
-        and not (
-            m.from_user.id in Config.OWNER_ID
-            or (
-                (m.from_user.id in Config.SUDO_USERS)
-                and ("skipvc" in Config.ALLOWED_COMMANDS)
-            )
-            or (
-                (m.chat.id in VC_GROUP_ADMEME_CHATS)
-                and m.from_user.id in await admemes(m.chat.id)
-                and ("skipvc" in Config.ALLOWED_COMMANDS)
-            )  
+    if m.from_user and not (
+        m.from_user.id in Config.OWNER_ID
+        or (
+            (m.from_user.id in Config.SUDO_USERS)
+            and ("skipvc" in Config.ALLOWED_COMMANDS)
+        )
+        or (
+            (m.chat.id in VC_GROUP_ADMEME_CHATS)
+            and m.from_user.id in await admemes(m.chat.id)
+            and ("skipvc" in Config.ALLOWED_COMMANDS)
         )
     ):
         return
@@ -946,19 +951,16 @@ async def play_voice_chat(m: Message, gc: XPlayer):
 @add_groupcall
 async def stop_voice_chat(m: Message, gc: XPlayer):
     """Leave voice chat."""
-    if (
-        m.from_user
-        and not (
-            m.from_user.id in Config.OWNER_ID
-            or (
-                (m.from_user.id in Config.SUDO_USERS)
-                and ("stopvc" in Config.ALLOWED_COMMANDS)
-            )
-            or (
-                (m.chat.id in VC_GROUP_ADMEME_CHATS)
-                and m.from_user.id in await admemes(m.chat.id)
-                and ("stopvc" in Config.ALLOWED_COMMANDS)
-            )  
+    if m.from_user and not (
+        m.from_user.id in Config.OWNER_ID
+        or (
+            (m.from_user.id in Config.SUDO_USERS)
+            and ("stopvc" in Config.ALLOWED_COMMANDS)
+        )
+        or (
+            (m.chat.id in VC_GROUP_ADMEME_CHATS)
+            and m.from_user.id in await admemes(m.chat.id)
+            and ("stopvc" in Config.ALLOWED_COMMANDS)
         )
     ):
         return
@@ -997,19 +999,16 @@ async def stop_voice_chat(m: Message, gc: XPlayer):
 @add_groupcall
 async def pause_voice_chat(m: Message, gc: XPlayer):
     """Pause songs."""
-    if (
-        m.from_user
-        and not (
-            m.from_user.id in Config.OWNER_ID
-            or (
-                (m.from_user.id in Config.SUDO_USERS)
-                and ("pausevc" in Config.ALLOWED_COMMANDS)
-            )
-            or (
-                (m.chat.id in VC_GROUP_ADMEME_CHATS) 
-                and m.from_user.id in await admemes(m.chat.id)
-                and ("pausevc" in Config.ALLOWED_COMMANDS)
-            )  
+    if m.from_user and not (
+        m.from_user.id in Config.OWNER_ID
+        or (
+            (m.from_user.id in Config.SUDO_USERS)
+            and ("pausevc" in Config.ALLOWED_COMMANDS)
+        )
+        or (
+            (m.chat.id in VC_GROUP_ADMEME_CHATS)
+            and m.from_user.id in await admemes(m.chat.id)
+            and ("pausevc" in Config.ALLOWED_COMMANDS)
         )
     ):
         return
@@ -1035,19 +1034,16 @@ async def pause_voice_chat(m: Message, gc: XPlayer):
 @add_groupcall
 async def resume_voice_chat(m: Message, gc: XPlayer):
     """Resume songs."""
-    if (
-        m.from_user
-        and not (
-            m.from_user.id in Config.OWNER_ID
-            or (
-                (m.from_user.id in Config.SUDO_USERS)
-                and ("resumevc" in Config.ALLOWED_COMMANDS)
-            )
-            or (
-                (m.chat.id in VC_GROUP_ADMEME_CHATS) 
-                and m.from_user.id in await admemes(m.chat.id)
-                and ("resumevc" in Config.ALLOWED_COMMANDS)
-            )  
+    if m.from_user and not (
+        m.from_user.id in Config.OWNER_ID
+        or (
+            (m.from_user.id in Config.SUDO_USERS)
+            and ("resumevc" in Config.ALLOWED_COMMANDS)
+        )
+        or (
+            (m.chat.id in VC_GROUP_ADMEME_CHATS)
+            and m.from_user.id in await admemes(m.chat.id)
+            and ("resumevc" in Config.ALLOWED_COMMANDS)
         )
     ):
         return
@@ -1073,19 +1069,16 @@ async def resume_voice_chat(m: Message, gc: XPlayer):
 @add_groupcall
 async def mute_voice_chat(m: Message, gc: XPlayer):
     """Shhhh..."""
-    if (
-        m.from_user
-        and not (
-            m.from_user.id in Config.OWNER_ID
-            or (
-                (m.from_user.id in Config.SUDO_USERS)
-                and ("mutevc" in Config.ALLOWED_COMMANDS)
-            )
-            or (
-                (m.chat.id in VC_GROUP_ADMEME_CHATS) 
-                and m.from_user.id in await admemes(m.chat.id)
-                and ("mutevc" in Config.ALLOWED_COMMANDS)
-            )  
+    if m.from_user and not (
+        m.from_user.id in Config.OWNER_ID
+        or (
+            (m.from_user.id in Config.SUDO_USERS)
+            and ("mutevc" in Config.ALLOWED_COMMANDS)
+        )
+        or (
+            (m.chat.id in VC_GROUP_ADMEME_CHATS)
+            and m.from_user.id in await admemes(m.chat.id)
+            and ("mutevc" in Config.ALLOWED_COMMANDS)
         )
     ):
         return
@@ -1106,24 +1099,21 @@ async def mute_voice_chat(m: Message, gc: XPlayer):
     allow_private=False,
     allow_bots=False,
     check_downpath=True,
-    trigger="/"
+    trigger="/",
 )
 @add_groupcall
 async def unmute_voice_chat(m: Message, gc: XPlayer):
     """Unmute voice chat."""
-    if (
-        m.from_user
-        and not (
-            m.from_user.id in Config.OWNER_ID
-            or (
-                (m.from_user.id in Config.SUDO_USERS)
-                and ("unmutevc" in Config.ALLOWED_COMMANDS)
-            )
-            or (
-                (m.chat.id in VC_GROUP_ADMEME_CHATS) 
-                and m.from_user.id in await admemes(m.chat.id)
-                and ("unmutevc" in Config.ALLOWED_COMMANDS)
-            )  
+    if m.from_user and not (
+        m.from_user.id in Config.OWNER_ID
+        or (
+            (m.from_user.id in Config.SUDO_USERS)
+            and ("unmutevc" in Config.ALLOWED_COMMANDS)
+        )
+        or (
+            (m.chat.id in VC_GROUP_ADMEME_CHATS)
+            and m.from_user.id in await admemes(m.chat.id)
+            and ("unmutevc" in Config.ALLOWED_COMMANDS)
         )
     ):
         return
@@ -1149,19 +1139,16 @@ async def unmute_voice_chat(m: Message, gc: XPlayer):
 @add_groupcall
 async def change_vol(m: Message, gc: XPlayer):
     """A step for nature."""
-    if (
-        m.from_user
-        and not (
-            m.from_user.id in Config.OWNER_ID
-            or (
-                (m.from_user.id in Config.SUDO_USERS)
-                and ("volume" in Config.ALLOWED_COMMANDS)
-            )
-            or (
-                (m.chat.id in VC_GROUP_ADMEME_CHATS) 
-                and m.from_user.id in await admemes(m.chat.id)
-                and ("volume" in Config.ALLOWED_COMMANDS)
-            )  
+    if m.from_user and not (
+        m.from_user.id in Config.OWNER_ID
+        or (
+            (m.from_user.id in Config.SUDO_USERS)
+            and ("volume" in Config.ALLOWED_COMMANDS)
+        )
+        or (
+            (m.chat.id in VC_GROUP_ADMEME_CHATS)
+            and m.from_user.id in await admemes(m.chat.id)
+            and ("volume" in Config.ALLOWED_COMMANDS)
         )
     ):
         return
@@ -1186,7 +1173,7 @@ async def change_vol(m: Message, gc: XPlayer):
     allow_private=False,
     allow_bots=False,
     check_downpath=True,
-    trigger="/"
+    trigger="/",
 )
 @add_groupcall
 async def manage_voice_chat(m: Message, gc: XPlayer):
@@ -1208,10 +1195,14 @@ async def manage_voice_chat(m: Message, gc: XPlayer):
             ),
         )
 
+
 async def bash(cmd):
-    s = await asyncio.create_subprocess_shell(cmd,stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+    s = await asyncio.create_subprocess_shell(
+        cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+    )
     s, stderr = await s.communicate()
     return s.decode().strip(), stderr.decode().strip()
+
 
 @userge.on_cmd(
     "radio",
@@ -1299,19 +1290,16 @@ async def start_radio(m: Message, gc: XPlayer):
 @add_groupcall
 async def playlist_voice_chat(m: Message, gc: XPlayer):
     """Song Playlist"""
-    if (
-        m.from_user
-        and not (
-            m.from_user.id in Config.OWNER_ID
-            or (
-                (m.from_user.id in Config.SUDO_USERS)
-                and ("skipvc" in Config.ALLOWED_COMMANDS)
-            )
-            or (
-                (m.chat.id in VC_GROUP_ADMEME_CHATS) 
-                and m.from_user.id in await admemes(m.chat.id)
-                and ("skipvc" in Config.ALLOWED_COMMANDS)
-            )  
+    if m.from_user and not (
+        m.from_user.id in Config.OWNER_ID
+        or (
+            (m.from_user.id in Config.SUDO_USERS)
+            and ("skipvc" in Config.ALLOWED_COMMANDS)
+        )
+        or (
+            (m.chat.id in VC_GROUP_ADMEME_CHATS)
+            and m.from_user.id in await admemes(m.chat.id)
+            and ("skipvc" in Config.ALLOWED_COMMANDS)
         )
     ):
         return
@@ -1332,24 +1320,22 @@ async def playlist_voice_chat(m: Message, gc: XPlayer):
     check_downpath=True,
 )
 async def groupmode_voice_chat(m: Message):
-    """ enable / disable playvc for group members """
-    if (
-        m.from_user
-        and not (
-            m.from_user.id in Config.OWNER_ID
-            or (
-                (m.from_user.id in Config.SUDO_USERS)
-                and ("vcgroupmode" in Config.ALLOWED_COMMANDS)
-            )
-            or (
-                (m.chat.id in VC_GROUP_ADMEME_CHATS) 
-                and m.from_user.id in await admemes(m.chat.id)
-                and ("vcgroupmode" in Config.ALLOWED_COMMANDS)
-            )  
+    """enable / disable playvc for group members"""
+    if m.from_user and not (
+        m.from_user.id in Config.OWNER_ID
+        or (
+            (m.from_user.id in Config.SUDO_USERS)
+            and ("vcgroupmode" in Config.ALLOWED_COMMANDS)
+        )
+        or (
+            (m.chat.id in VC_GROUP_ADMEME_CHATS)
+            and m.from_user.id in await admemes(m.chat.id)
+            and ("vcgroupmode" in Config.ALLOWED_COMMANDS)
         )
     ):
         return
     await m.edit(await set_group_mode(m.chat.id, bool("-d" in m.flags)), del_in=5)
+
 
 @userge.on_cmd(
     "auth",
@@ -1362,8 +1348,9 @@ async def groupmode_voice_chat(m: Message):
     allow_bots=False,
 )
 async def die(m: Message):
-    await m.edit(await set_group_admeme_mode(m.chat.id, bool("-d" in m.flags)), del_in=5)
-
+    await m.edit(
+        await set_group_admeme_mode(m.chat.id, bool("-d" in m.flags)), del_in=5
+    )
 
 
 @userge.on_cmd(
@@ -1378,19 +1365,16 @@ async def die(m: Message):
 @add_groupcall
 async def replay_voice_chat(m: Message, gc: XPlayer):
     """repeat voice chat media"""
-    if (
-        m.from_user
-        and not (
-            m.from_user.id in Config.OWNER_ID
-            or (
-                (m.from_user.id in Config.SUDO_USERS)
-                and ("repeatvc" in Config.ALLOWED_COMMANDS)
-            )
-            or (
-                (m.chat.id in VC_GROUP_ADMEME_CHATS) 
-                and m.from_user.id in await admemes(m.chat.id)
-                and ("repeatvc" in Config.ALLOWED_COMMANDS)
-            )  
+    if m.from_user and not (
+        m.from_user.id in Config.OWNER_ID
+        or (
+            (m.from_user.id in Config.SUDO_USERS)
+            and ("repeatvc" in Config.ALLOWED_COMMANDS)
+        )
+        or (
+            (m.chat.id in VC_GROUP_ADMEME_CHATS)
+            and m.from_user.id in await admemes(m.chat.id)
+            and ("repeatvc" in Config.ALLOWED_COMMANDS)
         )
     ):
         return
