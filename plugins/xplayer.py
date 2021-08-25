@@ -145,11 +145,11 @@ vc_chats: Dict[int, XPlayer] = {}
 async def get_groupcall(chat_id: int) -> XPlayer:
     if not vc_chats.get(chat_id):
         group_call = vc_chats[chat_id] = XPlayer(chat_id)
-        group_call.gc.add_handler(
-            network_status_changed_handler, GroupCallFileAction.NETWORK_STATUS_CHANGED
+        group_call.gc.on_network_status_changed(
+            network_status_changed_handler
         )
-        group_call.gc.add_handler(
-            playout_ended_handler, GroupCallFileAction.PLAYOUT_ENDED
+        group_call.gc.on_playout_ended(
+            playout_ended_handler
         )
         if userge.has_bot:
             try:
@@ -172,7 +172,7 @@ async def network_status_changed_handler(gc: XPlayer, is_connected: bool) -> Non
         LOG.info(f"LEFT VC in {gc.chat_id}")
 
 
-async def playout_ended_handler(gc, filename) -> None:
+async def playout_ended_handler(gc: XPlayer, filename) -> None:
     LOG.info(f"song ended in {gc.chat_id}")
     # If replay is on then just remove the song from playlist
     if len(gc.playlist) == 0:
