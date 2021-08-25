@@ -45,11 +45,11 @@ from youtubesearchpython.__future__ import VideosSearch
 
 try:
     import ffmpeg
-    from pytgcalls import GroupCallFactory, GroupCallFileAction
+    from pytgcalls import GroupCallFactory
 except ModuleNotFoundError:
     os.system("pip3 install -U pytgcalls ffmpeg-python")
     import ffmpeg
-    from pytgcalls import GroupCallFactory, GroupCallFileAction
+    from pytgcalls import GroupCallFactory
 
 
 LOG = userge.getLogger(__name__)
@@ -145,12 +145,8 @@ vc_chats: Dict[int, XPlayer] = {}
 async def get_groupcall(chat_id: int) -> XPlayer:
     if not vc_chats.get(chat_id):
         group_call = vc_chats[chat_id] = XPlayer(chat_id)
-        group_call.gc.on_network_status_changed(
-            network_status_changed_handler
-        )
-        group_call.gc.on_playout_ended(
-            playout_ended_handler
-        )
+        group_call.gc.on_network_status_changed(network_status_changed_handler)
+        group_call.gc.on_playout_ended(playout_ended_handler)
         if userge.has_bot:
             try:
                 await userge.get_chat_member(
