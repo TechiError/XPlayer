@@ -46,9 +46,13 @@ from youtubesearchpython.__future__ import VideosSearch
 try:
     import ffmpeg
     from pytgcalls import GroupCallFactory
+	from pytgcalls.implementation.group_call_file import GroupCallFile
+    from pytgcalls.mtproto.pyrogram_bridge import PyrogramBridge
 except ModuleNotFoundError:
     os.system("pip3 install -U pytgcalls ffmpeg-python")
     import ffmpeg
+	from pytgcalls.implementation.group_call_file import GroupCallFile
+    from pytgcalls.mtproto.pyrogram_bridge import PyrogramBridge
     from pytgcalls import GroupCallFactory
 
 
@@ -81,29 +85,27 @@ async def admemes(id):
 
 
 # vclient = GroupCallFactory(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
-
+bridge = PyrogramBridge(userge)
 
 class XPlayer(GroupCallFactory):
     def __init__(self, chat_id: int):
         self.replay_songs = False
         self.is_active = False
+		self.is_connected = False
         self.current_vol = 100
         self.playlist = []
         self.chat_id = chat_id
         self.chat_has_bot = False
         self.input_filename = ""
         super().__init__(
-            userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file=""
+			mtproto_bridge=bridge
         )
-        self.gc = super().get_file_group_call()
-        self.gc.chat_id = chat_id
-        self.gc.playlist = self.playlist
 
     def start_playout(self, key: str):
-        self.gc.input_filename = keypath(key)
+        self.input_filename = keypath(key)
 
     def replay(self) -> bool:
-        self.gc.play_on_repeat = self.replay_songs = not self.replay_songs
+        self.play_on_repeat = self.replay_songs = not self.replay_songs
         return self.replay_songs
 
     def get_playlist(self) -> str:
@@ -126,14 +128,14 @@ class XPlayer(GroupCallFactory):
         # Joining the same group call can crash the bot
         # if not self.is_connected: (https://t.me/tgcallschat/7563)
         if not self.is_active:
-            await self.gc.start(self.chat_id)
+            await self.start(self.chat_id)
             self.is_active = True
 
     async def leave(self):
-        self.gc.input_filename = ""
+        self.input_filename = ""
         # https://nekobin.com/nonaconeba.py
         try:
-            await self.gc.stop()
+            await self.stop()
             self.is_active = False
         except AttributeError:
             pass
@@ -145,8 +147,8 @@ vc_chats: Dict[int, XPlayer] = {}
 async def get_groupcall(chat_id: int) -> XPlayer:
     if not vc_chats.get(chat_id):
         group_call = vc_chats[chat_id] = XPlayer(chat_id)
-        group_call.gc.on_network_status_changed(network_status_changed_handler)
-        group_call.gc.on_playout_ended(playout_ended_handler)
+        group_call.on_network_status_changed(network_status_changed_handler)
+        group_call.on_playout_ended(playout_ended_handler)
         if userge.has_bot:
             try:
                 await userge.get_chat_member(
