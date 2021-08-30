@@ -46,14 +46,12 @@ from youtubesearchpython.__future__ import VideosSearch
 try:
     import ffmpeg
     from pytgcalls import GroupCallFactory
-	from pytgcalls.implementation.group_call_file import GroupCallFile
     from pytgcalls.mtproto.pyrogram_bridge import PyrogramBridge
 except ModuleNotFoundError:
     os.system("pip3 install -U pytgcalls ffmpeg-python")
     import ffmpeg
-	from pytgcalls.implementation.group_call_file import GroupCallFile
-    from pytgcalls.mtproto.pyrogram_bridge import PyrogramBridge
     from pytgcalls import GroupCallFactory
+    from pytgcalls.mtproto.pyrogram_bridge import PyrogramBridge
 
 
 LOG = userge.getLogger(__name__)
@@ -87,19 +85,18 @@ async def admemes(id):
 # vclient = GroupCallFactory(userge, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM, path_to_log_file="")
 bridge = PyrogramBridge(userge)
 
+
 class XPlayer(GroupCallFactory):
     def __init__(self, chat_id: int):
         self.replay_songs = False
         self.is_active = False
-		self.is_connected = False
+        self.is_connected = False
         self.current_vol = 100
         self.playlist = []
         self.chat_id = chat_id
         self.chat_has_bot = False
         self.input_filename = ""
-        super().__init__(
-			mtproto_bridge=bridge
-        )
+        super().__init__(mtproto_bridge=bridge)
 
     def start_playout(self, key: str):
         self.input_filename = keypath(key)
