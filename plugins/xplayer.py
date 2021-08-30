@@ -46,6 +46,7 @@ from youtubesearchpython.__future__ import VideosSearch
 try:
     import ffmpeg
     from pytgcalls import GroupCallFactory
+    from pytgcalls.implementation.group_call_file import GroupCallFile
     from pytgcalls.mtproto.pyrogram_bridge import PyrogramBridge
 except ModuleNotFoundError:
     os.system("pip3 install -U pytgcalls ffmpeg-python")
@@ -86,11 +87,11 @@ async def admemes(id):
 bridge = PyrogramBridge(userge)
 
 
-class XPlayer(GroupCallFactory):
+class XPlayer(GroupCallFile):
     def __init__(self, chat_id: int):
         self.replay_songs = False
         self.is_active = False
-        self.is_connected = False
+        self.is_connected = self.is_active
         self.current_vol = 100
         self.playlist = []
         self.chat_id = chat_id
