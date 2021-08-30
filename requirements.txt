@@ -1,2 +1,2 @@
-git+https://github.com/TechiError/tgcalls@patch-1&subdirectory=pytgcalls
+pytgcalls==3.0.0.dev9
 ffmpeg-python
