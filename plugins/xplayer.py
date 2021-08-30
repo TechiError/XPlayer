@@ -4,7 +4,7 @@
 #
 # Author : github.com/code-rgb [TG : @deleteduser420]
 #          Plugin Help Written by -> @iTz_Black007
-#          Modified by [@INSAANxD]
+#          Modified by [@ItzSipak]
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as
